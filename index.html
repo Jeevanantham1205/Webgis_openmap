@@ -1,19 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>India Disease Heatmap</title>
-  <meta charset="utf-8" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>
-    #map { height: 100vh; width: 100%; }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>India GIS Dashboard</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
 </head>
 <body>
+
+  <!-- Header -->
+  <div class="navbar">
+    <div class="dashboard-title">🗺️ India GIS Dashboard</div>
+    <div class="search-section">
+
+      <!-- Intensity Slider -->
+      <input type="range" id="intensityRange" min="1" max="20" value="10" step="1" />
+
+      <!-- District Dropdown -->
+      <select id="districtSearch" onchange="searchDistrict()">
+        <option value="">-- Select a District --</option>
+        <option>Chennai</option>
+        <option>Coimbatore</option>
+        <option>Madurai</option>
+        <option>Tiruchirappalli</option>
+        <option>Salem</option>
+        <option>Tirunelveli</option>
+        <option>Thanjavur</option>
+        <option>Erode</option>
+        <option>Vellore</option>
+        <option>Dindigul</option>
+        <option>Tiruvallur</option>
+        <option>Tiruppur</option>
+        <option>Nagapattinam</option>
+        <option>Kanchipuram</option>
+        <option>Namakkal</option>
+        <option>Karur</option>
+        <option>Virudhunagar</option>
+        <option>Sivaganga</option>
+        <option>Ramanathapuram</option>
+        <option>Theni</option>
+        <option>Dharmapuri</option>
+        <option>Krishnagiri</option>
+        <option>Perambalur</option>
+        <option>Villupuram</option>
+        <option>Cuddalore</option>
+        <option>Nilgiris</option>
+        <option>Pudukkottai</option>
+        <option>Tenkasi</option>
+        <option>Ariyalur</option>
+        <option>Tirupattur</option>
+        <option>Ranipet</option>
+        <option>Chengalpattu</option>
+        <option>Kallakurichi</option>
+        <option>Mayiladuthurai</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Map -->
   <div id="map"></div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+
+  <script src="leaflet-heat.js"></script>
+
+  <!-- Main Script -->
   <script src="script.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('/cgi-bin/data.py')
+        .then(response => response.json())
+        .then(data => {
+          const map = L.map('map').setView([11.1271, 78.6569], 7); // Centered on Tamil Nadu
+  
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(map);
+  
+          const markers = L.markerClusterGroup();
+  
+          data.forEach(item => {
+            const marker = L.circleMarker([item.lat, item.lon], {
+              radius: 5,
+              color: '#000000'
+            }).bindPopup(`${item.district}: ${item.cases} cases`);
+            markers.addLayer(marker);
+          });
+  
+          map.addLayer(markers);
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+        });
+    });
+  </script>
+  
+  
 </body>
 </html>
